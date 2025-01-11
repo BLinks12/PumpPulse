@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PumpPulse Coin - Network Heatmap Tracker</title>
+  <style>
+    :root {
+      --primary-color: #ff0000;
+      --secondary-color: #00ff00;
+      --background-color: #000000;
+      --border-color: #ff0000;
+      --text-color: #00ff00;
+      --pulse-highlight: rgba(255, 0, 0, 0.7);
+      --hover-color: #ff5050;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Courier New', Courier, monospace;
+      background: var(--background-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      text-shadow: 0 0 20px var(--primary-color);
+      margin-bottom: 30px;
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { text-shadow: 0 0 10px var(--primary-color); }
+      50% { text-shadow: 0 0 20px var(--hover-color); }
+    }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      padding: 10px;
+      border: 2px solid var(--border-color);
+      margin-bottom: 20px;
+      background: rgba(20, 0, 0, 0.8);
+    }
+
+    .video-container {
+      width: 100%;
+      max-width: 1000px;
+      height: 300px;
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      background: rgba(50, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .heatmap-glow {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255, 0, 0, 0.5) 10%, transparent 60%);
+      animation: expandPulse 2s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes expandPulse {
+      0% { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    .terminal {
+      background: rgba(10, 0, 0, 0.9);
+      border: 2px solid var(--border-color);
+      padding: 15px;
+      font-size: 1rem;
+      overflow-y: scroll;
+      line-height: 1.5;
+      height: 200px;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 20px;
+    }
+
+    .terminal p {
+      margin: 0;
+    }
+
+    .pulse-button {
+      width: 100%;
+      max-width: 300px;
+      padding: 15px;
+      background: transparent;
+      border: 2px solid var(--border-color);
+      color: var(--text-color);
+      font-size: 1.2rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: 0.3s ease;
+    }
+
+    .pulse-button:hover {
+      background: var(--hover-color);
+      color: #000;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    }
+
+    .coordinates, .timestamp {
+      position: absolute;
+      padding: 5px 10px;
+      font-size: 0.9rem;
+      color: var(--text-color);
+      background: rgba(50, 0, 0, 0.8);
+      border-radius: 3px;
+    }
+
+    .coordinates {
+      bottom: 10px;
+      left: 10px;
+    }
+
+    .timestamp {
+      bottom: 10px;
+      right: 10px;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: var(--text-color);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>PumpPulse Coin - Network Heatmap Tracker</h1>
+
+  <div class="status-bar">
+    <span id="network-status">STATUS: MONITORING</span>
+    <span id="encryption">ENCRYPTION: SECURE</span>
+    <span id="wallet-alert">CONNECTED WALLETS: 0</span>
+  </div>
+
+  <div class="video-container">
+    <div class="heatmap-glow"></div>
+    <div class="coordinates">No active signals</div>
+    <div class="timestamp" id="timestamp">--:--:-- UTC</div>
+  </div>
+
+  <div class="terminal" id="terminal-log">
+    <p>[SYSTEM] PumpPulse tracker initialized...</p>
+  </div>
+
+  <button class="pulse-button" id="start-tracking">Start Pump Monitoring</button>
+
+  <footer>
+    Powered by PumpPulse Network. Decode the surge before the dump.
+  </footer>
+
+  <script>
+    const terminalLog = document.getElementById("terminal-log");
+    const coordinatesElement = document.querySelector(".coordinates");
+    const timestampElement = document.getElementById("timestamp");
+    const walletAlertElement = document.getElementById("wallet-alert");
+    const startButton = document.getElementById("start-tracking");
+
+    const logs = [
+      "[PULSE DETECTOR] Scanning for coordinated wallet activity...",
+      "[ALERT] 5 wallets sending synchronized transactions.",
+      "[ALERT] Pulse strength increasing—possible pump detected.",
+      "[INFO] Node connections updated. Heatmap intensity adjusted.",
+      "[SUCCESS] Pump signal logged in real-time.",
+      "[WARNING] Spike detected. Prepare for memecoin volatility."
+    ];
+
+    function updateLog(message) {
+      const logEntry = document.createElement("p");
+      const timestamp = new Date().toUTCString().split(" ")[4];
+      logEntry.textContent = `[${timestamp}] ${message}`;
+      terminalLog.appendChild(logEntry);
+      terminalLog.scrollTop = terminalLog.scrollHeight;
+    }
+
+    function updateTimestamp() {
+      const now = new Date();
+      timestampElement.textContent = now.toUTCString().split(' ')[4] + ' UTC';
+    }
+
+    function generateRandomCoordinates() {
+      const lat = (Math.random() * 180 - 90).toFixed(6);
+      const lon = (Math.random() * 360 - 180).toFixed(6);
+      return `LAT: ${lat} LON: ${lon}`;
+    }
+
+    function randomWalletCount() {
+      return Math.floor(Math.random() * 50) + 1;
+    }
+
+    startButton.addEventListener("click", () => {
+      updateLog("[SYSTEM] Tracking initiated...");
+      let index = 0;
+
+      const updateLoop = setInterval(() => {
+        if (index < logs.length) {
+          updateLog(logs[index]);
+          coordinatesElement.textContent = generateRandomCoordinates();
+          walletAlertElement.textContent = `CONNECTED WALLETS: ${randomWalletCount()}`;
+          index++;
+        } else {
+          clearInterval(updateLoop);
+          updateLog("[SYSTEM] Tracking session complete.");
+          startButton.textContent = "Restart Pump Monitoring";
+        }
+      }, 2000);
+    });
+
+    setInterval(updateTimestamp, 1000);
+  </script>
+</body>
+</html>
