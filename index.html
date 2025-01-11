@@ -6,10 +6,10 @@
   <title>PumpPulse Coin - Network Heatmap Tracker</title>
   <style>
     :root {
-      --primary-color: #ff0000;
+      --primary-color: #ff0033;
       --secondary-color: #00ff00;
       --background-color: #000000;
-      --border-color: #ff0000;
+      --border-color: #ff0033;
       --text-color: #00ff00;
       --pulse-highlight: rgba(255, 0, 0, 0.7);
       --hover-color: #ff5050;
@@ -67,18 +67,19 @@
       overflow: hidden;
     }
 
-    .heatmap-glow {
-      content: '';
+    .heatmap {
       position: absolute;
-      inset: 0;
-      background: radial-gradient(circle, rgba(255, 0, 0, 0.5) 10%, transparent 60%);
+      width: 20px;
+      height: 20px;
+      background: var(--pulse-highlight);
+      border-radius: 50%;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
       animation: expandPulse 2s infinite;
-      pointer-events: none;
     }
 
     @keyframes expandPulse {
       0% { transform: scale(0.8); opacity: 1; }
-      100% { transform: scale(1.8); opacity: 0; }
+      100% { transform: scale(2.5); opacity: 0; }
     }
 
     .terminal {
@@ -154,8 +155,7 @@
     <span id="wallet-alert">CONNECTED WALLETS: 0</span>
   </div>
 
-  <div class="video-container">
-    <div class="heatmap-glow"></div>
+  <div class="video-container" id="heatmap-container">
     <div class="coordinates">No active signals</div>
     <div class="timestamp" id="timestamp">--:--:-- UTC</div>
   </div>
@@ -176,6 +176,7 @@
     const timestampElement = document.getElementById("timestamp");
     const walletAlertElement = document.getElementById("wallet-alert");
     const startButton = document.getElementById("start-tracking");
+    const heatmapContainer = document.getElementById("heatmap-container");
 
     const logs = [
       "[PULSE DETECTOR] Scanning for coordinated wallet activity...",
@@ -209,6 +210,20 @@
       return Math.floor(Math.random() * 50) + 1;
     }
 
+    function createPulse() {
+      const pulse = document.createElement("div");
+      pulse.className = "heatmap";
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      pulse.style.left = `${x}%`;
+      pulse.style.top = `${y}%`;
+      heatmapContainer.appendChild(pulse);
+
+      setTimeout(() => {
+        pulse.remove();
+      }, 2000);
+    }
+
     startButton.addEventListener("click", () => {
       updateLog("[SYSTEM] Tracking initiated...");
       let index = 0;
@@ -218,6 +233,7 @@
           updateLog(logs[index]);
           coordinatesElement.textContent = generateRandomCoordinates();
           walletAlertElement.textContent = `CONNECTED WALLETS: ${randomWalletCount()}`;
+          createPulse(); // Add visual pulse
           index++;
         } else {
           clearInterval(updateLoop);
